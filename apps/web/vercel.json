@@ -1,0 +1,4 @@
+{
+  "installCommand": "cd ../.. && pnpm install --filter=@yahuti/web --frozen-lockfile",
+  "buildCommand": "pnpm run build"
+}

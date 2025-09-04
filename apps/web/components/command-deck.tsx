@@ -1,30 +1,23 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { StatusBadge } from '@/components/ui/badge'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { cn, formatCurrency, formatNumber, formatPercentage } from '@/lib/utils'
-import { useKPISummary, usePerformanceMetrics, mockKPIData } from '@/hooks/use-kpis'
+import { useKPISummary, mockKPIData } from '@/hooks/use-kpis'
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
-  Target,
-  Zap,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
   Activity,
-  BarChart3,
-  Settings,
   RefreshCw,
-  Play,
-  Pause,
-  Square,
+  AlertTriangle,
 } from 'lucide-react'
-import type { WidgetProps, SystemHealth, Alert } from '@/types'
+import type { SystemHealth, Alert } from '@/types'
+
+// Lazy load heavy components
+const StatusBadge = lazy(() => import('@/components/ui/badge').then(m => ({ default: m.StatusBadge })))
+const PerformanceSection = lazy(() => import('./performance-section'))
+const SystemControls = lazy(() => import('./system-controls'))
 
 interface CommandDeckProps {
   className?: string
@@ -32,7 +25,6 @@ interface CommandDeckProps {
 
 export function CommandDeck({ className }: CommandDeckProps) {
   const { data: kpiData, metrics, isLoading, error, refetch } = useKPISummary()
-  const performanceMetrics = usePerformanceMetrics()
   const [mounted, setMounted] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
 

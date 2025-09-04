@@ -11,13 +11,20 @@ import {
   Activity,
   RefreshCw,
   AlertTriangle,
+  CheckCircle,
+  Clock,
+  Settings,
+  Zap,
+  Play,
+  Pause,
+  Square,
+  BarChart3,
+  Target,
 } from 'lucide-react'
 import type { SystemHealth, Alert } from '@/types'
 
 // Lazy load heavy components
 const StatusBadge = lazy(() => import('@/components/ui/badge').then(m => ({ default: m.StatusBadge })))
-const PerformanceSection = lazy(() => import('./performance-section'))
-const SystemControls = lazy(() => import('./system-controls'))
 
 interface CommandDeckProps {
   className?: string
@@ -222,22 +229,6 @@ export function CommandDeck({ className }: CommandDeckProps) {
               Emergency Stop
             </Button>
             
-            {performanceMetrics && (
-              <div className="pt-3 border-t border-white/10">
-                <p className="text-sm text-gray-400 mb-2">Performance Score</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-yahuti-gold-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${performanceMetrics.performanceScore}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-semibold text-yahuti-gold-500">
-                    {performanceMetrics.performanceScore}%
-                  </span>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -359,18 +350,6 @@ export function CommandDeck({ className }: CommandDeckProps) {
               </div>
             </div>
 
-            {performanceMetrics?.recommendations && (
-              <div className="pt-3 border-t border-white/10">
-                <p className="text-xs text-gray-400 mb-2">Recommendations</p>
-                <div className="space-y-1">
-                  {performanceMetrics.recommendations.slice(0, 2).map((rec, index) => (
-                    <p key={index} className="text-xs text-white bg-black/20 p-2 rounded">
-                      {rec}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>

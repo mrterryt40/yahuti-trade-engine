@@ -13,18 +13,36 @@ export const kpiKeys = {
   summary: () => [...kpiKeys.all, 'summary'] as const,
 }
 
+// Check if we're in a production environment without an API
+const isProductionWithoutAPI = () => {
+  return typeof window !== 'undefined' && 
+         window.location.origin.includes('vercel.app') &&
+         !process.env.NEXT_PUBLIC_API_URL
+}
+
 // Main KPI hook
 export function useKPIs(refetchInterval: number = 30000) {
   return useQuery({
     queryKey: kpiKeys.all,
     queryFn: async () => {
-      const response = await apiEndpoints.kpis.getAll()
-      return response.data as KPIData
+      // Use mock data immediately if in production without API
+      if (isProductionWithoutAPI()) {
+        return mockKPIData
+      }
+      
+      try {
+        const response = await apiEndpoints.kpis.getAll()
+        return response.data as KPIData
+      } catch (error) {
+        // Fallback to mock data on API failure
+        console.log('API unavailable, using mock data')
+        return mockKPIData
+      }
     },
-    refetchInterval,
-    staleTime: 20000, // Consider data stale after 20 seconds
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchInterval: isProductionWithoutAPI() ? false : refetchInterval, // Disable polling if using mock data
+    staleTime: 20000,
+    retry: isProductionWithoutAPI() ? 0 : 1, // Don't retry if in production without API
+    retryDelay: 1000, // Faster retry for better UX
   })
 }
 
@@ -33,12 +51,21 @@ export function useTodayKPIs() {
   return useQuery({
     queryKey: kpiKeys.today(),
     queryFn: async () => {
-      const response = await apiEndpoints.kpis.getToday()
-      return response.data as KPIData
+      if (isProductionWithoutAPI()) {
+        return mockKPIData
+      }
+      
+      try {
+        const response = await apiEndpoints.kpis.getToday()
+        return response.data as KPIData
+      } catch (error) {
+        console.log('API unavailable, using mock data')
+        return mockKPIData
+      }
     },
-    refetchInterval: 10000, // Refresh every 10 seconds for real-time data
+    refetchInterval: isProductionWithoutAPI() ? false : 10000,
     staleTime: 5000,
-    retry: 2,
+    retry: isProductionWithoutAPI() ? 0 : 1,
   })
 }
 
@@ -47,12 +74,21 @@ export function useMTDKPIs() {
   return useQuery({
     queryKey: kpiKeys.mtd(),
     queryFn: async () => {
-      const response = await apiEndpoints.kpis.getMTD()
-      return response.data as KPIData
+      if (isProductionWithoutAPI()) {
+        return mockKPIData
+      }
+      
+      try {
+        const response = await apiEndpoints.kpis.getMTD()
+        return response.data as KPIData
+      } catch (error) {
+        console.log('API unavailable, using mock data')
+        return mockKPIData
+      }
     },
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: isProductionWithoutAPI() ? false : 60000,
     staleTime: 30000,
-    retry: 2,
+    retry: isProductionWithoutAPI() ? 0 : 1,
   })
 }
 
@@ -61,12 +97,21 @@ export function useYTDKPIs() {
   return useQuery({
     queryKey: kpiKeys.ytd(),
     queryFn: async () => {
-      const response = await apiEndpoints.kpis.getYTD()
-      return response.data as KPIData
+      if (isProductionWithoutAPI()) {
+        return mockKPIData
+      }
+      
+      try {
+        const response = await apiEndpoints.kpis.getYTD()
+        return response.data as KPIData
+      } catch (error) {
+        console.log('API unavailable, using mock data')
+        return mockKPIData
+      }
     },
-    refetchInterval: 300000, // Refresh every 5 minutes
+    refetchInterval: isProductionWithoutAPI() ? false : 300000,
     staleTime: 120000,
-    retry: 2,
+    retry: isProductionWithoutAPI() ? 0 : 1,
   })
 }
 

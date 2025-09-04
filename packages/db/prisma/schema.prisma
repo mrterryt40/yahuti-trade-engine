@@ -1,0 +1,278 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id          String  @id @default(cuid())
+  name        String
+  rating      Float   @default(0)
+  country     String?
+  blacklisted Boolean @default(false)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inventory Inventory[]
+
+  @@map("suppliers")
+}
+
+model Inventory {
+  id               String          @id @default(cuid())
+  sku              String
+  kind             InventoryKind
+  cost             Decimal         @db.Decimal(12, 2)
+  provenance       String?
+  encryptedBlobRef String?
+  proofHash        String?
+  expiry           DateTime?
+  policy           DeliveryPolicy  @default(INSTANT)
+  status           InventoryStatus @default(AVAILABLE)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  transactions Transaction[]
+
+  @@index([sku])
+  @@index([status])
+  @@map("inventory")
+}
+
+enum InventoryKind {
+  KEY
+  ACCOUNT
+  SUBSCRIPTION
+  DOMAIN
+  GIFTCARD
+}
+
+enum DeliveryPolicy {
+  INSTANT
+  ESCROW
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  RESERVED
+  DELIVERED
+  INVALIDATED
+}
+
+model Listing {
+  id              String        @id @default(cuid())
+  marketplace     Marketplace
+  sku             String
+  title           String?
+  description     String?
+  price           Decimal       @db.Decimal(12, 2)
+  floor           Decimal?      @db.Decimal(12, 2)
+  ceiling         Decimal?      @db.Decimal(12, 2)
+  positionRank    Int?
+  views           Int           @default(0)
+  ctr             Float         @default(0)
+  sellThroughDays Float?
+  variantId       String?
+  status          ListingStatus @default(ACTIVE)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([marketplace, sku])
+  @@index([status])
+  @@map("listings")
+}
+
+enum Marketplace {
+  EBAY
+  AMAZON
+  GODADDY
+  NAMECHEAP
+  G2G
+  PLAYERAUCTIONS
+}
+
+enum ListingStatus {
+  ACTIVE
+  PAUSED
+  SOLD
+  ENDED
+  FLAGGED
+}
+
+model Transaction {
+  id          String      @id @default(cuid())
+  inventoryId String
+  inventory   Inventory   @relation(fields: [inventoryId], references: [id])
+  marketplace Marketplace
+  buyerId     String?
+  salePrice   Decimal     @db.Decimal(12, 2)
+  fees        Decimal     @db.Decimal(12, 2)
+  net         Decimal     @db.Decimal(12, 2)
+  deliveredAt DateTime?
+  status      TxStatus    @default(PAID)
+  meta        Json?
+  createdAt   DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+  @@map("transactions")
+}
+
+enum TxStatus {
+  PAID
+  DELIVERED
+  REFUNDED
+  DISPUTED
+  CHARGEBACK
+}
+
+model Experiment {
+  id          String             @id @default(cuid())
+  type        ExperimentType
+  variantA    Json
+  variantB    Json
+  winner      ExperimentWinner?  @default(PENDING)
+  lift        Float?
+  status      ExperimentStatus   @default(RUNNING)
+  startedAt   DateTime           @default(now())
+  completedAt DateTime?
+
+  @@map("experiments")
+}
+
+enum ExperimentType {
+  PRICE
+  TITLE
+  THUMBNAIL
+  COPY
+  SOURCING
+  DELIVERY
+}
+
+enum ExperimentWinner {
+  A
+  B
+  TIE
+  PENDING
+}
+
+enum ExperimentStatus {
+  RUNNING
+  COMPLETE
+  ARCHIVED
+}
+
+model Alert {
+  id         String        @id @default(cuid())
+  severity   AlertSeverity
+  message    String
+  module     String
+  createdTs  DateTime      @default(now())
+  resolvedTs DateTime?
+
+  @@index([createdTs])
+  @@index([severity])
+  @@map("alerts")
+}
+
+enum AlertSeverity {
+  INFO
+  WARN
+  CRITICAL
+}
+
+model Ledger {
+  id          String   @id @default(cuid())
+  event       String
+  payloadJson Json
+  ts          DateTime @default(now())
+  actor       String?
+
+  @@index([ts])
+  @@index([event])
+  @@map("ledger")
+}
+
+model DealCandidate {
+  id                   String   @id @default(cuid())
+  source               String
+  sku                  String
+  kind                 InventoryKind @default(KEY)
+  cost                 Decimal  @db.Decimal(12, 2)
+  estimatedResale      Decimal  @db.Decimal(12, 2)
+  estimatedFees        Decimal  @db.Decimal(12, 2)
+  netMargin            Float
+  confidence           Float
+  sellerScore          Float
+  expectedSellThroughDays Float?
+  quantity             Int      @default(1)
+  notes                String?
+  discoveredAt         DateTime @default(now())
+  status               DealCandidateStatus @default(PENDING)
+  processedAt          DateTime?
+
+  @@index([status])
+  @@index([discoveredAt])
+  @@index([netMargin])
+  @@map("deal_candidates")
+}
+
+enum DealCandidateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PURCHASED
+}
+
+model Playbook {
+  id          String   @id @default(cuid())
+  name        String
+  version     String
+  content     String   // YAML content
+  checksum    String
+  status      PlaybookStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  activatedAt DateTime?
+
+  @@unique([name, version])
+  @@map("playbooks")
+}
+
+enum PlaybookStatus {
+  DRAFT
+  VALIDATED
+  STAGED
+  ACTIVE
+  ARCHIVED
+}
+
+model KpiSnapshot {
+  id                 String   @id @default(cuid())
+  date               DateTime @db.Date
+  pnlToday           Decimal  @db.Decimal(12, 2)
+  pnlMtd             Decimal  @db.Decimal(12, 2)
+  bankroll           Decimal  @db.Decimal(12, 2)
+  cashToTrust        Decimal  @db.Decimal(12, 2)
+  flipsToday         Int
+  avgProfitPerFlip   Decimal  @db.Decimal(12, 2)
+  sellThroughHours   Float
+  disputePct7d       Float
+  refundPct30d       Float
+  createdAt          DateTime @default(now())
+
+  @@unique([date])
+  @@index([date])
+  @@map("kpi_snapshots")
+}

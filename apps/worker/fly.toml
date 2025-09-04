@@ -1,0 +1,53 @@
+# Fly.io configuration for Yahuti Trade Engine Worker
+app = "yahuti-trade-engine-worker"
+primary_region = "ord"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  WORKER_HEALTH_PORT = "3002"
+
+[[services]]
+  internal_port = 3002
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 10
+    soft_limit = 5
+
+  [[services.http_checks]]
+    interval = "30s"
+    grace_period = "10s"
+    method = "get"
+    path = "/health"
+    protocol = "http"
+    timeout = "5s"
+
+[vm]
+  cpu_kind = "shared"
+  cpus = 2
+  memory_mb = 1024
+
+[processes]
+  worker = "node apps/worker/dist/index.js"
+
+# Persistent storage for logs and temporary files
+[[mounts]]
+  source = "yahuti_worker_data"
+  destination = "/data"
+
+# Auto-scaling configuration
+[[vm.auto_start_machines]]
+  min_machines_running = 1
+  max_machines_running = 2
+
+[[vm.auto_stop_machines]]
+  enabled = false  # Workers should always run
+  min_machines_running = 1

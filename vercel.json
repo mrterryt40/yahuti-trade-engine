@@ -1,5 +1,19 @@
 {
-  "buildCommand": "cd apps/web && pnpm run build",
-  "installCommand": "pnpm install --filter=@yahuti/web",
-  "outputDirectory": "apps/web/.next"
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/web/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "installCommand": "pnpm install",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/web/$1"
+    }
+  ]
 }

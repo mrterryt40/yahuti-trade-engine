@@ -1,9 +1,30 @@
+"use client"
+
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/badge'
-import { Target, TrendingUp, DollarSign, Clock, ExternalLink } from 'lucide-react'
+import { Target, TrendingUp, DollarSign, Clock, ExternalLink, Plus, BarChart3 } from 'lucide-react'
 
 export default function HuntBoardPage() {
+  const [selectedOpportunity, setSelectedOpportunity] = useState<number | null>(null)
+  
+  const handleNewHunt = () => {
+    alert('New Hunt: This would open a form to configure a new market search with criteria like product category, price range, profit margin, and target marketplaces.')
+    // In a real app, this would open a modal or navigate to a form
+  }
+
+  const handleAnalyzeMarket = () => {
+    alert('Analyze Market: This would show market trends, price analysis, demand forecasting, and profitability insights across different product categories.')
+    // In a real app, this would show analytics dashboard or charts
+  }
+
+  const handleViewOpportunity = (opportunityId: number, product: string) => {
+    setSelectedOpportunity(opportunityId)
+    alert(`Viewing details for: ${product}\n\nThis would show:\n• Product condition & photos\n• Seller contact info\n• Market comparison\n• Profit calculations\n• Risk assessment\n• Quick action buttons`)
+    // In a real app, this would open a detailed modal or navigate to details page
+  }
+
   const opportunities = [
     {
       id: 1,
@@ -55,12 +76,20 @@ export default function HuntBoardPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="yahutiOutline" size="sm">
-            <Target className="h-4 w-4 mr-2" />
+          <Button 
+            variant="yahutiOutline" 
+            size="sm"
+            onClick={handleNewHunt}
+          >
+            <Plus className="h-4 w-4 mr-2" />
             New Hunt
           </Button>
-          <Button variant="yahuti" size="sm">
-            <TrendingUp className="h-4 w-4 mr-2" />
+          <Button 
+            variant="yahuti" 
+            size="sm"
+            onClick={handleAnalyzeMarket}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
             Analyze Market
           </Button>
         </div>
@@ -150,7 +179,12 @@ export default function HuntBoardPage() {
                     <p className="text-xs text-gray-300">{opp.timeFound}</p>
                   </div>
                   
-                  <Button variant="yahuti" size="sm">
+                  <Button 
+                    variant="yahuti" 
+                    size="sm"
+                    onClick={() => handleViewOpportunity(opp.id, opp.product)}
+                    className={selectedOpportunity === opp.id ? 'bg-yahuti-gold-600' : ''}
+                  >
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View
                   </Button>

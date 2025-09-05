@@ -38,6 +38,15 @@ export function CommandDeck({ className }: CommandDeckProps) {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Update clock every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastUpdate(new Date())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
   const [systemStatus, setSystemStatus] = useState<SystemHealth>({
     status: 'online',
     uptime: 1842, // minutes

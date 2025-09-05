@@ -41,7 +41,7 @@ export function CommandDeck({ className }: CommandDeckProps) {
     setMounted(true)
   }, [])
 
-  // Update clock every second - force redeploy 
+  // Update clock every second - force redeploy v2 
   useEffect(() => {
     const interval = setInterval(() => {
       setLastUpdate(new Date())

@@ -35,6 +35,7 @@ export function CommandDeck({ className }: CommandDeckProps) {
   const [mounted, setMounted] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [engineStatus, setEngineStatus] = useState<'stopped' | 'running' | 'paused'>('running')
 
   useEffect(() => {
     setMounted(true)
@@ -48,6 +49,14 @@ export function CommandDeck({ className }: CommandDeckProps) {
 
     return () => clearInterval(interval)
   }, [])
+
+  // Update system status when engine status changes
+  useEffect(() => {
+    setSystemStatus(prev => ({
+      ...prev,
+      status: engineStatus === 'stopped' ? 'offline' : 'online'
+    }))
+  }, [engineStatus])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -64,6 +73,27 @@ export function CommandDeck({ className }: CommandDeckProps) {
   const handleConfigure = () => {
     // Navigate to settings page or show configuration modal
     window.location.href = '/settings'
+  }
+
+  const handleStartEngine = () => {
+    setEngineStatus('running')
+    console.log('Engine started')
+    // Here you would typically make an API call to start the trading engine
+    // Example: await api.post('/engine/start')
+  }
+
+  const handlePauseTrading = () => {
+    setEngineStatus('paused')
+    console.log('Trading paused')
+    // Here you would typically make an API call to pause trading
+    // Example: await api.post('/engine/pause')
+  }
+
+  const handleEmergencyStop = () => {
+    setEngineStatus('stopped')
+    console.log('Emergency stop activated')
+    // Here you would typically make an API call to emergency stop
+    // Example: await api.post('/engine/emergency-stop')
   }
   const [systemStatus, setSystemStatus] = useState<SystemHealth>({
     status: 'online',
@@ -247,15 +277,32 @@ export function CommandDeck({ className }: CommandDeckProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="success" size="lg" className="w-full">
+            <Button 
+              variant="success" 
+              size="lg" 
+              className="w-full"
+              onClick={handleStartEngine}
+              disabled={engineStatus === 'running'}
+            >
               <Play className="h-4 w-4 mr-2" />
-              Start Engine
+              {engineStatus === 'running' ? 'Engine Running' : 'Start Engine'}
             </Button>
-            <Button variant="warning" size="lg" className="w-full">
+            <Button 
+              variant="warning" 
+              size="lg" 
+              className="w-full"
+              onClick={handlePauseTrading}
+              disabled={engineStatus === 'stopped'}
+            >
               <Pause className="h-4 w-4 mr-2" />
-              Pause Trading
+              {engineStatus === 'paused' ? 'Trading Paused' : 'Pause Trading'}
             </Button>
-            <Button variant="destructive" size="lg" className="w-full">
+            <Button 
+              variant="destructive" 
+              size="lg" 
+              className="w-full"
+              onClick={handleEmergencyStop}
+            >
               <Square className="h-4 w-4 mr-2" />
               Emergency Stop
             </Button>

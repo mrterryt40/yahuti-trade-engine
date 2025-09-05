@@ -1,9 +1,32 @@
+"use client"
+
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/badge'
 import { Lock, ArrowUpCircle, ArrowDownCircle, Shield, DollarSign, TrendingUp, History } from 'lucide-react'
 
 export default function VaultPage() {
+  const [selectedAction, setSelectedAction] = useState<string | null>(null)
+
+  const handleDeposit = () => {
+    setSelectedAction('deposit')
+    alert('Deposit: This would open a secure form to add funds to your vault with options for:\n• Bank Transfer\n• Credit/Debit Card\n• Crypto Transfer\n• Wire Transfer\n\nWith real-time verification and instant crediting.')
+    // In a real app, this would open a deposit modal or navigate to deposit form
+  }
+
+  const handleWithdraw = () => {
+    setSelectedAction('withdraw')
+    alert('Withdraw: This would open a secure withdrawal form with:\n• Available balance verification\n• Multiple payout methods (Bank, PayPal, Crypto)\n• 2FA security verification\n• Processing time estimates\n• Fee calculations')
+    // In a real app, this would open a withdrawal modal or navigate to withdrawal form
+  }
+
+  const handleViewAnalytics = () => {
+    setSelectedAction('analytics')
+    alert('Analytics: This would show detailed financial analytics including:\n• Monthly P&L charts\n• Transaction history graphs\n• Fund allocation breakdowns\n• Performance metrics\n• Tax reporting tools\n• Export options')
+    // In a real app, this would navigate to analytics dashboard
+  }
+
   const transactions = [
     {
       id: 1,
@@ -43,11 +66,21 @@ export default function VaultPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="success" size="sm">
+          <Button 
+            variant="success" 
+            size="sm"
+            onClick={handleDeposit}
+            className={selectedAction === 'deposit' ? 'ring-2 ring-green-400' : ''}
+          >
             <ArrowDownCircle className="h-4 w-4 mr-2" />
             Deposit
           </Button>
-          <Button variant="warning" size="sm">
+          <Button 
+            variant="warning" 
+            size="sm"
+            onClick={handleWithdraw}
+            className={selectedAction === 'withdraw' ? 'ring-2 ring-orange-400' : ''}
+          >
             <ArrowUpCircle className="h-4 w-4 mr-2" />
             Withdraw
           </Button>
@@ -107,15 +140,30 @@ export default function VaultPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="success" className="w-full" size="lg">
+            <Button 
+              variant="success" 
+              className="w-full" 
+              size="lg"
+              onClick={handleDeposit}
+            >
               <ArrowDownCircle className="h-5 w-5 mr-2" />
               Make Deposit
             </Button>
-            <Button variant="warning" className="w-full" size="lg">
+            <Button 
+              variant="warning" 
+              className="w-full" 
+              size="lg"
+              onClick={handleWithdraw}
+            >
               <ArrowUpCircle className="h-5 w-5 mr-2" />
               Request Withdrawal
             </Button>
-            <Button variant="yahutiOutline" className="w-full" size="lg">
+            <Button 
+              variant="yahutiOutline" 
+              className="w-full" 
+              size="lg"
+              onClick={handleViewAnalytics}
+            >
               <TrendingUp className="h-5 w-5 mr-2" />
               View Analytics
             </Button>

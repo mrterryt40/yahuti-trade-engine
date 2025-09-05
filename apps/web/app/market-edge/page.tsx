@@ -1,67 +1,94 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { TrendingUp, BarChart3, PieChart, LineChart, Target } from 'lucide-react'
+"use client"
 
 export default function MarketEdgePage() {
+  const handleComingSoon = () => {
+    alert("This feature is coming soon! Stay tuned for advanced market analysis tools.");
+  };
+
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-yahuti-gold-500 mb-2">Market Edge</h1>
-          <p className="text-gray-400">Advanced market analysis and competitive intelligence</p>
+          <h1 className="text-3xl font-bold text-yahuti-gold-500">Market Edge</h1>
+          <p className="text-gray-400 mt-1">Advanced market analysis and competitive intelligence</p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <Button variant="yahutiOutline" size="sm">
-            <BarChart3 className="h-4 w-4 mr-2" />
+        {/* Action Buttons - Disabled State */}
+        <div className="flex gap-3">
+          <button 
+            onClick={handleComingSoon}
+            disabled
+            className="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed opacity-50 hover:opacity-70 transition-opacity"
+            title="Coming Soon"
+          >
             Generate Report
-          </Button>
-          <Button variant="yahuti" size="sm">
-            <Target className="h-4 w-4 mr-2" />
+          </button>
+          <button 
+            onClick={handleComingSoon}
+            disabled
+            className="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed opacity-50 hover:opacity-70 transition-opacity"
+            title="Coming Soon"
+          >
             Find Edge
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card variant="yahuti">
-          <CardContent className="p-6 text-center">
-            <TrendingUp className="h-12 w-12 text-yahuti-gold-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Market Trends</h3>
-            <p className="text-gray-400">Real-time market movement analysis</p>
-          </CardContent>
-        </Card>
-
-        <Card variant="yahuti">
-          <CardContent className="p-6 text-center">
-            <PieChart className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Sector Analysis</h3>
-            <p className="text-gray-400">Category performance insights</p>
-          </CardContent>
-        </Card>
-
-        <Card variant="yahuti">
-          <CardContent className="p-6 text-center">
-            <LineChart className="h-12 w-12 text-green-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Price Predictions</h3>
-            <p className="text-gray-400">AI-powered market forecasting</p>
-          </CardContent>
-        </Card>
+      {/* Feature Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-2">Market Trends</h3>
+          <p className="text-gray-400">Real-time market movement analysis</p>
+          <div className="mt-4 text-sm text-yahuti-gold-500">
+            🚧 In Development
+          </div>
+        </div>
+        
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-2">Sector Analysis</h3>
+          <p className="text-gray-400">Category performance insights</p>
+          <div className="mt-4 text-sm text-yahuti-gold-500">
+            🚧 In Development
+          </div>
+        </div>
+        
+        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+          <h3 className="text-lg font-semibold text-white mb-2">Price Predictions</h3>
+          <p className="text-gray-400">AI-powered market forecasting</p>
+          <div className="mt-4 text-sm text-yahuti-gold-500">
+            🚧 In Development
+          </div>
+        </div>
       </div>
 
-      <Card variant="yahuti">
-        <CardHeader>
-          <CardTitle>Market Edge Dashboard</CardTitle>
-          <CardDescription>Coming soon - Advanced market analysis tools</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-12">
-          <p className="text-gray-400 mb-4">This feature is under development</p>
-          <Button variant="yahuti">
-            <Target className="h-4 w-4 mr-2" />
-            Request Early Access
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Coming Soon Section */}
+      <div className="bg-yahuti-gold-900/20 border border-yahuti-gold-600/30 rounded-lg p-8 text-center">
+        <h2 className="text-2xl font-bold text-yahuti-gold-500 mb-4">Market Edge Dashboard</h2>
+        <p className="text-gray-300 mb-6">
+          Coming soon - Advanced market analysis tools
+        </p>
+        <p className="text-gray-400 mb-8">
+          This feature is under development. We&apos;re building powerful tools for market analysis, 
+          competitive intelligence, and trading insights.
+        </p>
+        
+        <button 
+          onClick={handleComingSoon}
+          className="px-6 py-3 bg-yahuti-gold-600 hover:bg-yahuti-gold-700 text-black font-semibold rounded-lg transition-colors"
+        >
+          Request Early Access
+        </button>
+        
+        {/* Progress Indicator */}
+        <div className="mt-6">
+          <div className="text-sm text-gray-400 mb-2">Development Progress</div>
+          <div className="w-full bg-gray-700 rounded-full h-2">
+            <div className="bg-yahuti-gold-600 h-2 rounded-full w-1/3"></div>
+          </div>
+          <div className="text-xs text-gray-500 mt-1">33% Complete</div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

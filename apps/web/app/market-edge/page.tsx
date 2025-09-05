@@ -10,8 +10,8 @@ export default function MarketEdgePage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-yahuti-gold-500">Market Edge</h1>
-          <p className="text-gray-400 mt-1">Advanced market analysis and competitive intelligence</p>
+          <h1 className="text-3xl font-heading font-bold text-yahuti-gold-500 mb-2">Market Edge</h1>
+          <p className="text-gray-400">Advanced market analysis and competitive intelligence</p>
         </div>
         
         {/* Action Buttons - Disabled State */}

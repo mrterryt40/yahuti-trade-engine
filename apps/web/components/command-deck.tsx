@@ -34,6 +34,7 @@ export function CommandDeck({ className }: CommandDeckProps) {
   const { data: kpiData, metrics, isLoading, error, refetch } = useKPISummary()
   const [mounted, setMounted] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -47,6 +48,23 @@ export function CommandDeck({ className }: CommandDeckProps) {
 
     return () => clearInterval(interval)
   }, [])
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      await refetch()
+      setLastUpdate(new Date())
+    } catch (error) {
+      console.error('Failed to refresh data:', error)
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 1000) // Show spinner for at least 1 second
+    }
+  }
+
+  const handleConfigure = () => {
+    // Navigate to settings page or show configuration modal
+    window.location.href = '/settings'
+  }
   const [systemStatus, setSystemStatus] = useState<SystemHealth>({
     status: 'online',
     uptime: 1842, // minutes
@@ -172,14 +190,18 @@ export function CommandDeck({ className }: CommandDeckProps) {
           <Button 
             variant="yahutiOutline" 
             size="sm" 
-            onClick={() => refetch()}
-            disabled={isLoading}
+            onClick={handleRefresh}
+            disabled={isLoading || isRefreshing}
           >
-            <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-            Refresh
+            <RefreshCw className={cn("h-4 w-4 mr-2", (isLoading || isRefreshing) && "animate-spin")} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           
-          <Button variant="yahuti" size="sm">
+          <Button 
+            variant="yahuti" 
+            size="sm"
+            onClick={handleConfigure}
+          >
             <Settings className="h-4 w-4 mr-2" />
             Configure
           </Button>

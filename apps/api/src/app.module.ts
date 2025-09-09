@@ -19,6 +19,7 @@ import { PlaybooksModule } from './playbooks/playbooks.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { G2AModule } from './g2a/g2a.module';
 
 // System modules
 import { ControlModule } from './control/control.module';
@@ -52,6 +53,7 @@ import { HealthModule } from './health/health.module';
     SuppliersModule,
     LedgerModule,
     WebhooksModule,
+    G2AModule,
 
     // System modules
     ControlModule,

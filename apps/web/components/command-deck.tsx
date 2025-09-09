@@ -21,6 +21,7 @@ import {
   BarChart3,
   Target,
 } from 'lucide-react'
+import { G2ADashboardWidget } from '@/components/g2a-dashboard-widget'
 import type { SystemHealth, Alert } from '@/types'
 
 // Lazy load heavy components
@@ -353,6 +354,24 @@ export function CommandDeck({ className }: CommandDeckProps) {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* G2A Integration */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <G2ADashboardWidget />
+        
+        {/* Additional marketplace integrations can go here */}
+        <Card variant="yahuti">
+          <CardHeader>
+            <CardTitle>Marketplace Integrations</CardTitle>
+            <CardDescription>Connect to additional platforms</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 border border-dashed border-white/20 rounded-lg text-center">
+              <p className="text-sm text-gray-400">More integrations coming soon...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Activity Feed & Additional Metrics */}

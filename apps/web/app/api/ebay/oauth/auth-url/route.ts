@@ -6,13 +6,8 @@ const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'http://localhost:3000/api/ebay/oauth/callback'
 const EBAY_AUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 
-// Available scopes based on your eBay app configuration
-const DEFAULT_SCOPES = [
-  'https://api.ebay.com/oauth/api_scope',
-  'https://api.ebay.com/oauth/api_scope/sell.inventory',
-  'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
-].join(' ')
+// Minimal scope for basic authentication
+const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'
 
 export async function GET(request: Request) {
   try {
@@ -34,7 +29,7 @@ export async function GET(request: Request) {
       client_id: EBAY_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       response_type: 'code',
-      scope: 'https://api.ebay.com/oauth/api_scope',
+      scope: requestedScopes || DEFAULT_SCOPES,
       state: state
     })
     
@@ -51,10 +46,12 @@ export async function GET(request: Request) {
       success: true,
       authUrl,
       state,
+      scopes: requestedScopes || DEFAULT_SCOPES,
       message: 'eBay OAuth 2.0 URL generated successfully',
       debug: {
         client_id: EBAY_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
+        scope: requestedScopes || DEFAULT_SCOPES,
         authUrl
       }
     })

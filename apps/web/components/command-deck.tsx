@@ -23,7 +23,6 @@ import {
 } from 'lucide-react'
 import { G2ADashboardWidget } from '@/components/g2a-dashboard-widget'
 import { EBayDashboardWidget } from '@/components/ebay-dashboard-widget'
-import { EBayItemLookup } from '@/components/ebay-item-lookup'
 import type { SystemHealth, Alert } from '@/types'
 
 // Lazy load heavy components
@@ -362,11 +361,6 @@ export function CommandDeck({ className }: CommandDeckProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <G2ADashboardWidget />
         <EBayDashboardWidget />
-      </div>
-
-      {/* eBay Tools */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EBayItemLookup />
       </div>
 
       {/* Additional Marketplaces */}

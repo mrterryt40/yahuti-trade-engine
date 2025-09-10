@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     if (!EBAY_CLIENT_ID || !EBAY_CLIENT_SECRET) {
       return NextResponse.json({
         success: false,
-        error: 'eBay OAuth credentials not configured'
+        error: 'eBay OAuth credentials not configured. Please check environment variables.'
       }, { status: 500 })
     }
 

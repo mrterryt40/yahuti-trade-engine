@@ -29,13 +29,13 @@ export async function GET(request: Request) {
     // Generate state parameter for CSRF protection
     const state = crypto.randomBytes(32).toString('hex')
     
-    // Build OAuth 2.0 authorization URL with minimal required parameters
+    // Build OAuth 2.0 authorization URL with eBay-specific parameters
     const params = new URLSearchParams({
       client_id: EBAY_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       response_type: 'code',
       scope: 'https://api.ebay.com/oauth/api_scope',
-      state: state,
+      state: state
     })
     
     const authUrl = `${EBAY_AUTH_BASE_URL}?${params.toString()}`

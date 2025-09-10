@@ -22,6 +22,7 @@ import {
   Target,
 } from 'lucide-react'
 import { G2ADashboardWidget } from '@/components/g2a-dashboard-widget'
+import { eBayDashboardWidget } from '@/components/ebay-dashboard-widget'
 import type { SystemHealth, Alert } from '@/types'
 
 // Lazy load heavy components
@@ -356,19 +357,46 @@ export function CommandDeck({ className }: CommandDeckProps) {
         ))}
       </div>
 
-      {/* G2A Integration */}
+      {/* Marketplace Integrations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <G2ADashboardWidget />
-        
-        {/* Additional marketplace integrations can go here */}
+        <eBayDashboardWidget />
+      </div>
+
+      {/* Additional Marketplaces */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card variant="yahuti">
           <CardHeader>
-            <CardTitle>Marketplace Integrations</CardTitle>
-            <CardDescription>Connect to additional platforms</CardDescription>
+            <CardTitle>Amazon Integration</CardTitle>
+            <CardDescription>Connect to Amazon marketplace</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 border border-dashed border-white/20 rounded-lg text-center">
-              <p className="text-sm text-gray-400">More integrations coming soon...</p>
+              <p className="text-sm text-gray-400">Coming soon...</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="yahuti">
+          <CardHeader>
+            <CardTitle>Shopify Integration</CardTitle>
+            <CardDescription>Connect to your Shopify store</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 border border-dashed border-white/20 rounded-lg text-center">
+              <p className="text-sm text-gray-400">Coming soon...</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card variant="yahuti">
+          <CardHeader>
+            <CardTitle>More Platforms</CardTitle>
+            <CardDescription>Expand your reach</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 border border-dashed border-white/20 rounded-lg text-center">
+              <p className="text-sm text-gray-400">Request integration</p>
             </div>
           </CardContent>
         </Card>

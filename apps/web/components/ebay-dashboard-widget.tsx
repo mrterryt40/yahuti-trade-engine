@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useeBayDashboard, useeBayItemLookup } from '@/hooks/use-ebay'
+import { useeBayAuth } from '@/hooks/use-ebay-auth'
 import { formatCurrency, formatNumber, cn } from '@/lib/utils'
 import {
   ShoppingBag,
@@ -22,12 +23,97 @@ import {
   Package,
   User,
   Star,
-  X
+  X,
+  Lock,
+  Unlock,
+  LogOut,
+  Shield
 } from 'lucide-react'
 import Image from 'next/image'
 
 interface EBayDashboardWidgetProps {
   className?: string
+}
+
+function EBayAuthSection() {
+  const { authStatus, isLoading, error, initiateAuth, logout, needsAuth, user } = useeBayAuth()
+  
+  if (isLoading) {
+    return (
+      <div className="p-4 bg-black/20 rounded-lg border border-white/10">
+        <div className="flex items-center gap-2">
+          <LoadingSpinner className="h-4 w-4" />
+          <span className="text-sm text-gray-400">Checking authentication...</span>
+        </div>
+      </div>
+    )
+  }
+  
+  if (needsAuth || authStatus?.expired || authStatus?.invalid) {
+    return (
+      <div className="p-4 bg-black/20 rounded-lg border border-white/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-red-400" />
+            <div>
+              <p className="text-sm font-medium text-white">Authentication Required</p>
+              <p className="text-xs text-gray-400">
+                {authStatus?.expired ? 'Token expired' : authStatus?.invalid ? 'Token invalid' : 'Not authenticated'}
+              </p>
+            </div>
+          </div>
+          <Button 
+            variant="yahuti" 
+            size="sm" 
+            onClick={() => initiateAuth()}
+            className="text-xs"
+          >
+            <Shield className="h-3 w-3 mr-1" />
+            Authenticate
+          </Button>
+        </div>
+        {error && (
+          <div className="mt-2 p-2 bg-red-900/20 border border-red-500/30 rounded text-xs text-red-400">
+            {error}
+          </div>
+        )}
+      </div>
+    )
+  }
+  
+  if (authStatus?.authenticated && user) {
+    return (
+      <div className="p-4 bg-green-900/20 rounded-lg border border-green-500/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Unlock className="h-4 w-4 text-green-400" />
+            <div>
+              <p className="text-sm font-medium text-white">
+                {user.firstName ? `${user.firstName} ${user.lastName}` : user.username}
+              </p>
+              <p className="text-xs text-gray-400">eBay authenticated</p>
+            </div>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={logout}
+            className="text-xs text-red-400 hover:text-red-300"
+          >
+            <LogOut className="h-3 w-3 mr-1" />
+            Logout
+          </Button>
+        </div>
+        {authStatus.tokenInfo && (
+          <div className="mt-2 text-xs text-gray-500">
+            Token expires: {new Date(authStatus.tokenInfo.expiresAt).toLocaleString()}
+          </div>
+        )}
+      </div>
+    )
+  }
+  
+  return null
 }
 
 function EBayItemLookupModal() {
@@ -459,6 +545,12 @@ export function EBayDashboardWidget({ className }: EBayDashboardWidgetProps) {
             </div>
           </div>
         )}
+
+        {/* eBay Authentication */}
+        <div>
+          <h4 className="text-sm font-medium text-gray-400 mb-3">eBay Authentication</h4>
+          <EBayAuthSection />
+        </div>
 
         {/* eBay Tools */}
         <div>

@@ -204,3 +204,81 @@ export function useeBaySearch(params?: {
     search
   }
 }
+
+export interface eBayItemDetails {
+  success: boolean
+  item?: {
+    id: string
+    title: string
+    price: number
+    currency: string
+    condition: string
+    category: string
+    location: string
+    seller: {
+      username: string
+      feedback: number
+    }
+    imageUrl: string
+    webUrl: string
+    description: string
+  }
+  dataSource?: string
+  note?: string
+  error?: string
+}
+
+export function useeBayItemLookup() {
+  const [data, setData] = useState<eBayItemDetails | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const lookupItem = async (itemId: string) => {
+    if (!itemId.trim()) {
+      setError('Item ID is required')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await fetch(`/api/ebay/browse?itemId=${encodeURIComponent(itemId)}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result: eBayItemDetails = await response.json()
+      
+      if (!result.success && result.error) {
+        setError(result.error)
+      }
+      
+      setData(result)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to lookup item'
+      setError(errorMessage)
+      console.error('Failed to lookup eBay item:', err)
+      setData({
+        success: false,
+        error: errorMessage
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const clearData = () => {
+    setData(null)
+    setError(null)
+  }
+
+  return {
+    data,
+    isLoading,
+    error,
+    lookupItem,
+    clearData
+  }
+}

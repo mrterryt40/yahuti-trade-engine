@@ -18,11 +18,11 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 
-interface eBayDashboardWidgetProps {
+interface EBayDashboardWidgetProps {
   className?: string
 }
 
-export function eBayDashboardWidget({ className }: eBayDashboardWidgetProps) {
+export function EBayDashboardWidget({ className }: EBayDashboardWidgetProps) {
   const { data, isLoading, error, refetch } = useeBayDashboard()
 
   if (isLoading) {

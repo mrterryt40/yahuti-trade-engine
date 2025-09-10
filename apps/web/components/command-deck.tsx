@@ -22,7 +22,7 @@ import {
   Target,
 } from 'lucide-react'
 import { G2ADashboardWidget } from '@/components/g2a-dashboard-widget'
-import { eBayDashboardWidget } from '@/components/ebay-dashboard-widget'
+import { EBayDashboardWidget } from '@/components/ebay-dashboard-widget'
 import type { SystemHealth, Alert } from '@/types'
 
 // Lazy load heavy components
@@ -360,7 +360,7 @@ export function CommandDeck({ className }: CommandDeckProps) {
       {/* Marketplace Integrations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <G2ADashboardWidget />
-        <eBayDashboardWidget />
+        <EBayDashboardWidget />
       </div>
 
       {/* Additional Marketplaces */}

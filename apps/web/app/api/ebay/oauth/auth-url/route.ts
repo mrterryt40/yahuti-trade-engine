@@ -4,7 +4,8 @@ import crypto from 'crypto'
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'http://localhost:3000/api/ebay/oauth/callback'
-const EBAY_AUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
+const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
+const EBAY_AUTH_BASE_URL = 'https://signin.sandbox.ebay.com/ws/eBayISAPI.dll'
 
 // Minimal scope for basic authentication
 const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'
@@ -24,34 +25,34 @@ export async function GET(request: Request) {
     // Generate state parameter for CSRF protection
     const state = crypto.randomBytes(32).toString('hex')
     
-    // Build OAuth 2.0 authorization URL with eBay-specific parameters
+    // Generate session ID for eBay's Auth'n'Auth flow
+    const sessionId = crypto.randomBytes(16).toString('hex')
+    
+    // Build eBay Auth'n'Auth URL using RuName
     const params = new URLSearchParams({
-      client_id: EBAY_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
-      response_type: 'code',
-      scope: requestedScopes || DEFAULT_SCOPES,
-      state: state
+      SignIn: '',
+      runame: EBAY_RUNAME,
+      SessID: sessionId
     })
     
     const authUrl = `${EBAY_AUTH_BASE_URL}?${params.toString()}`
     
     // Debug logging
-    console.log('eBay OAuth 2.0 Debug:', {
-      client_id: EBAY_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+    console.log('eBay Auth\'n\'Auth Debug:', {
+      runame: EBAY_RUNAME,
+      sessionId: sessionId,
       authUrl
     })
     
     return NextResponse.json({
       success: true,
       authUrl,
-      state,
-      scopes: requestedScopes || DEFAULT_SCOPES,
-      message: 'eBay OAuth 2.0 URL generated successfully',
+      sessionId,
+      runame: EBAY_RUNAME,
+      message: 'eBay Auth\'n\'Auth URL generated successfully',
       debug: {
-        client_id: EBAY_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        scope: requestedScopes || DEFAULT_SCOPES,
+        runame: EBAY_RUNAME,
+        sessionId: sessionId,
         authUrl
       }
     })

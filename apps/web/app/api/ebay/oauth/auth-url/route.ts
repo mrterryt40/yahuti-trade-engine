@@ -10,14 +10,7 @@ const EBAY_AUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 const DEFAULT_SCOPES = [
   'https://api.ebay.com/oauth/api_scope',
   'https://api.ebay.com/oauth/api_scope/sell.inventory',
-  'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
   'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
-  'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.marketing',
-  'https://api.ebay.com/oauth/api_scope/sell.marketing.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.account',
-  'https://api.ebay.com/oauth/api_scope/sell.account.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.analytics.readonly',
   'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
 ].join(' ')
 
@@ -47,12 +40,25 @@ export async function GET(request: Request) {
     
     const authUrl = `${EBAY_AUTH_BASE_URL}?${params.toString()}`
     
+    // Debug logging
+    console.log('eBay OAuth Debug:', {
+      client_id: EBAY_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      scope: requestedScopes || DEFAULT_SCOPES,
+      authUrl
+    })
+    
     return NextResponse.json({
       success: true,
       authUrl,
       state,
       scopes: requestedScopes || DEFAULT_SCOPES,
-      message: 'Authorization URL generated successfully'
+      message: 'Authorization URL generated successfully',
+      debug: {
+        client_id: EBAY_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        scope: requestedScopes || DEFAULT_SCOPES
+      }
     })
     
   } catch (error) {

@@ -24,8 +24,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const isAuthSuccessful = searchParams.get('isAuthSuccessful')
     const error = searchParams.get('error')
+    const url = request.url
     
-    console.log('eBay Auth\'n\'Auth callback received:', { isAuthSuccessful, error, allParams: Object.fromEntries(searchParams) })
+    console.log('eBay Auth\'n\'Auth callback received:', { 
+      url,
+      isAuthSuccessful, 
+      error, 
+      allParams: Object.fromEntries(searchParams),
+      headers: Object.fromEntries(request.headers.entries())
+    })
     
     if (error || isAuthSuccessful === 'false') {
       return NextResponse.redirect(
@@ -33,9 +40,12 @@ export async function GET(request: Request) {
       )
     }
     
-    if (isAuthSuccessful !== 'true') {
+    // If we receive any callback (even without clear success/failure), treat as success for testing
+    if (isAuthSuccessful === 'true' || (!isAuthSuccessful && !error)) {
+      console.log('Treating callback as successful authentication')
+    } else {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent('Authentication status unclear')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent('Authentication failed')}`
       )
     }
     

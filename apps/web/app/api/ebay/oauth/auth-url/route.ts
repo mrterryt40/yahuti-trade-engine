@@ -29,22 +29,21 @@ export async function GET(request: Request) {
     // Generate state parameter for CSRF protection
     const state = crypto.randomBytes(32).toString('hex')
     
-    // Build authorization URL
+    // Build OAuth 2.0 authorization URL with minimal required parameters
     const params = new URLSearchParams({
       client_id: EBAY_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       response_type: 'code',
-      scope: requestedScopes || DEFAULT_SCOPES,
+      scope: 'https://api.ebay.com/oauth/api_scope',
       state: state,
     })
     
     const authUrl = `${EBAY_AUTH_BASE_URL}?${params.toString()}`
     
     // Debug logging
-    console.log('eBay OAuth Debug:', {
+    console.log('eBay OAuth 2.0 Debug:', {
       client_id: EBAY_CLIENT_ID,
       redirect_uri: REDIRECT_URI,
-      scope: requestedScopes || DEFAULT_SCOPES,
       authUrl
     })
     
@@ -52,12 +51,11 @@ export async function GET(request: Request) {
       success: true,
       authUrl,
       state,
-      scopes: requestedScopes || DEFAULT_SCOPES,
-      message: 'Authorization URL generated successfully',
+      message: 'eBay OAuth 2.0 URL generated successfully',
       debug: {
         client_id: EBAY_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
-        scope: requestedScopes || DEFAULT_SCOPES
+        authUrl
       }
     })
     

@@ -3,12 +3,46 @@ import crypto from 'crypto'
 
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
-const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'http://localhost:3000/api/ebay/oauth/callback'
+const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
-const EBAY_AUTH_BASE_URL = 'https://signin.sandbox.ebay.com/ws/eBayISAPI.dll'
+const EBAY_OAUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 
-// Minimal scope for basic authentication
-const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'
+// Comprehensive scopes for OAuth 2.0
+const DEFAULT_SCOPES = [
+  'https://api.ebay.com/oauth/api_scope',
+  'https://api.ebay.com/oauth/api_scope/buy.order.readonly',
+  'https://api.ebay.com/oauth/api_scope/buy.guest.order',
+  'https://api.ebay.com/oauth/api_scope/sell.marketing.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.marketing',
+  'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.inventory',
+  'https://api.ebay.com/oauth/api_scope/sell.account.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.account',
+  'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
+  'https://api.ebay.com/oauth/api_scope/sell.analytics.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.marketplace.insights.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.catalog.readonly',
+  'https://api.ebay.com/oauth/api_scope/buy.shopping.cart',
+  'https://api.ebay.com/oauth/api_scope/buy.offer.auction',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.email.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.phone.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.address.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.name.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.identity.status.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.finances',
+  'https://api.ebay.com/oauth/api_scope/sell.payment.dispute',
+  'https://api.ebay.com/oauth/api_scope/sell.item.draft',
+  'https://api.ebay.com/oauth/api_scope/sell.item',
+  'https://api.ebay.com/oauth/api_scope/sell.reputation',
+  'https://api.ebay.com/oauth/api_scope/sell.reputation.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.notification.subscription',
+  'https://api.ebay.com/oauth/api_scope/commerce.notification.subscription.readonly',
+  'https://api.ebay.com/oauth/api_scope/sell.stores',
+  'https://api.ebay.com/oauth/api_scope/sell.stores.readonly',
+  'https://api.ebay.com/oauth/api_scope/commerce.vero'
+].join(' ')
 
 export async function GET(request: Request) {
   try {
@@ -20,40 +54,41 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const requestedScopes = searchParams.get('scopes')
+    const requestedScopes = searchParams.get('scopes') || DEFAULT_SCOPES
     
     // Generate state parameter for CSRF protection
     const state = crypto.randomBytes(32).toString('hex')
     
-    // Generate session ID for eBay's Auth'n'Auth flow
-    const sessionId = crypto.randomBytes(16).toString('hex')
-    
-    // Build eBay Auth'n'Auth URL using RuName
+    // Build OAuth 2.0 authorization URL
     const params = new URLSearchParams({
-      SignIn: '',
-      runame: EBAY_RUNAME,
-      SessID: sessionId
+      client_id: EBAY_CLIENT_ID!,
+      response_type: 'code',
+      redirect_uri: REDIRECT_URI,
+      scope: requestedScopes,
+      state: state
     })
     
-    // Fix the SignIn parameter to match eBay's expected format
-    const authUrl = `${EBAY_AUTH_BASE_URL}?SignIn&runame=${EBAY_RUNAME}&SessID=${sessionId}`
+    const authUrl = `${EBAY_OAUTH_BASE_URL}?${params.toString()}`
     
     // Debug logging
-    console.log('eBay Auth\'n\'Auth Debug:', {
-      runame: EBAY_RUNAME,
-      sessionId: sessionId,
+    console.log('eBay OAuth 2.0 Debug:', {
+      clientId: EBAY_CLIENT_ID,
+      redirectUri: REDIRECT_URI,
+      state: state,
       authUrl
     })
     
     return NextResponse.json({
       success: true,
       authUrl,
-      sessionId,
-      runame: EBAY_RUNAME,
-      message: 'eBay Auth\'n\'Auth URL generated successfully',
+      state,
+      clientId: EBAY_CLIENT_ID,
+      redirectUri: REDIRECT_URI,
+      message: 'eBay OAuth 2.0 URL generated successfully',
       debug: {
-        runame: EBAY_RUNAME,
-        sessionId: sessionId,
+        clientId: EBAY_CLIENT_ID,
+        redirectUri: REDIRECT_URI,
+        state: state,
         authUrl
       }
     })

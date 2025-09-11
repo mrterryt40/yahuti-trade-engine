@@ -5,7 +5,7 @@ const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const REDIRECT_URI = 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
-const EBAY_AUTH_BASE_URL = 'https://signin.ebay.com/ws/eBayISAPI.dll'
+const EBAY_AUTH_BASE_URL = 'https://signin.sandbox.ebay.com/ws/eBayISAPI.dll'
 
 // Basic scope for Auth'n'Auth
 const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'

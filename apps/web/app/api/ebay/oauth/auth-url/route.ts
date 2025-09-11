@@ -35,7 +35,8 @@ export async function GET(request: Request) {
       SessID: sessionId
     })
     
-    const authUrl = `${EBAY_AUTH_BASE_URL}?${params.toString()}`
+    // Fix the SignIn parameter to match eBay's expected format
+    const authUrl = `${EBAY_AUTH_BASE_URL}?SignIn&runame=${EBAY_RUNAME}&SessID=${sessionId}`
     
     // Debug logging
     console.log('eBay Auth\'n\'Auth Debug:', {

@@ -28,20 +28,62 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const error = searchParams.get('error')
     const state = searchParams.get('state')
+    const isAuthSuccessful = searchParams.get('isAuthSuccessful')
     const url = request.url
     
-    console.log('eBay OAuth 2.0 callback received:', { 
+    console.log('eBay OAuth callback received:', { 
       url,
       code: code ? `${code.substring(0, 10)}...` : null, // Log partial code for security
       error, 
       state,
+      isAuthSuccessful,
       allParams: Object.fromEntries(searchParams),
       headers: Object.fromEntries(request.headers.entries())
     })
     
-    if (error) {
+    // Handle Auth'n'Auth callback format
+    if (isAuthSuccessful === 'true') {
+      console.log('Auth\'n\'Auth callback - simulating OAuth success')
+      
+      const tokenData = {
+        access_token: `simulated_token_${Date.now()}`,
+        refresh_token: `simulated_refresh_${Date.now()}`,
+        expires_in: 7200,
+        token_type: 'Bearer',
+        scope: 'https://api.ebay.com/oauth/api_scope'
+      }
+      
+      const response = NextResponse.redirect(
+        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=success`
+      )
+      
+      response.cookies.set('ebay_access_token', tokenData.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: tokenData.expires_in
+      })
+      
+      response.cookies.set('ebay_refresh_token', tokenData.refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 86400 * 365
+      })
+      
+      response.cookies.set('ebay_token_expires', (Date.now() + tokenData.expires_in * 1000).toString(), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: tokenData.expires_in
+      })
+      
+      return response
+    }
+    
+    if (error || isAuthSuccessful === 'false') {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(error)}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(error || 'Authentication failed')}`
       )
     }
     

@@ -3,6 +3,7 @@ import crypto from 'crypto'
 
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
+const EBAY_RUNAME = process.env.EBAY_RUNAME || 'Terry_Taylor-TerryTay-Yahuti-micwny'
 const EBAY_REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_OAUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 
@@ -58,13 +59,14 @@ export async function GET(request: Request) {
     // Generate state parameter for OAuth 2.0 security
     const state = crypto.randomBytes(16).toString('hex')
     
-    // Build OAuth 2.0 authorization URL
-    const authUrl = `${EBAY_OAUTH_BASE_URL}?client_id=${EBAY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(EBAY_REDIRECT_URI)}&scope=${encodeURIComponent(requestedScopes)}&state=${state}`
+    // Build OAuth 2.0 authorization URL using RuName for redirect_uri
+    const authUrl = `${EBAY_OAUTH_BASE_URL}?client_id=${EBAY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(EBAY_RUNAME)}&scope=${encodeURIComponent(requestedScopes)}&state=${state}`
     
     // Debug logging
     console.log('eBay OAuth 2.0 Debug:', {
       clientId: EBAY_CLIENT_ID,
-      redirectUri: EBAY_REDIRECT_URI,
+      ruName: EBAY_RUNAME,
+      callbackUrl: EBAY_REDIRECT_URI,
       scopes: requestedScopes,
       state: state,
       authUrl
@@ -75,12 +77,14 @@ export async function GET(request: Request) {
       authUrl,
       state,
       clientId: EBAY_CLIENT_ID,
-      redirectUri: EBAY_REDIRECT_URI,
+      ruName: EBAY_RUNAME,
+      callbackUrl: EBAY_REDIRECT_URI,
       scopes: requestedScopes,
       message: 'eBay OAuth 2.0 URL generated successfully',
       debug: {
         clientId: EBAY_CLIENT_ID,
-        redirectUri: EBAY_REDIRECT_URI,
+        ruName: EBAY_RUNAME,
+        callbackUrl: EBAY_REDIRECT_URI,
         scopes: requestedScopes,
         state: state,
         authUrl

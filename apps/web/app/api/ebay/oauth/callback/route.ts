@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
-const REDIRECT_URI = 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
+const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_TOKEN_URL = 'https://api.sandbox.ebay.com/identity/v1/oauth2/token'
 
 interface eBayTokenResponse {

@@ -4,7 +4,15 @@ const nextConfig = {
     appDir: true,
   },
   images: {
-    domains: ['localhost'],
+    domains: [
+      'localhost',
+      'i.ebayimg.com',
+      'thumbs.ebayimg.com',
+      'ir.ebaystatic.com',
+      'p.ebayimg.com',
+      's3.amazonaws.com',
+      'images.unsplash.com'
+    ],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',

@@ -3,7 +3,7 @@ import crypto from 'crypto'
 
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
-const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
+const REDIRECT_URI = 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
 const EBAY_OAUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 

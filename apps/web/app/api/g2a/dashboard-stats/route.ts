@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 const G2A_BASE_URL = 'https://sandboxapi.g2a.com/v1'
 const CLIENT_ID = 'qdaiciDiyMaTjxMt'
 const API_KEY = '74026b3dc2c6db6a30a73e71cdb138b1e1b5eb7a97ced46689e2d28db1050875'
@@ -39,12 +41,12 @@ export async function GET() {
       })
     }
 
-    const topProducts = productsData.docs?.slice(0, 5).map((product: any) => ({
+    const topProducts = productsData.docs?.slice(0, 5).map((product: any, index: number) => ({
       id: product.id,
       name: product.name,
       price: product.minPrice,
       platform: product.platform || 'Unknown',
-      thumbnail: product.thumbnail,
+      thumbnail: `https://picsum.photos/58/58?random=${100 + index}`,
       availableToBuy: product.availableToBuy,
       qty: product.qty
     })) || []

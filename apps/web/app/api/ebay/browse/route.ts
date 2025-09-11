@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { makeeBayApiCall } from '@/lib/ebay-api'
 
+export const dynamic = 'force-dynamic'
+
 const EBAY_BASE_URL = 'https://api.sandbox.ebay.com'
 const APP_ID = 'TerryTay-YahutiTr-SBX-5115bff8e-83abae7a'
 
@@ -88,7 +90,7 @@ export async function GET(request: Request) {
         category: 'Cell Phones & Smartphones',
         location: 'Cupertino, US',
         seller: { username: 'apple_store_official', feedback: 99.8 },
-        imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop',
+        imageUrl: 'https://picsum.photos/300/300?random=1',
         webUrl: 'https://www.ebay.com/itm/12345',
         description: 'Brand new iPhone 15 Pro Max with 256GB storage in Natural Titanium finish.'
       },
@@ -101,7 +103,7 @@ export async function GET(request: Request) {
         category: 'Laptops & Netbooks',
         location: 'San Francisco, US',
         seller: { username: 'tech_depot_pro', feedback: 98.5 },
-        imageUrl: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=300&h=300&fit=crop',
+        imageUrl: 'https://picsum.photos/300/300?random=2',
         webUrl: 'https://www.ebay.com/itm/67890',
         description: 'Professional MacBook Pro with M3 Max chip, perfect for development and creative work.'
       }
@@ -116,7 +118,7 @@ export async function GET(request: Request) {
       category: 'Electronics',
       location: 'Test Location, US',
       seller: { username: 'sandbox_seller', feedback: 95.0 },
-      imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop',
+      imageUrl: 'https://picsum.photos/300/300?random=3',
       webUrl: `https://www.ebay.com/itm/${itemId}`,
       description: 'This is a test item from eBay sandbox environment.'
     }

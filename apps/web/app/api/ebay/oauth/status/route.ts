@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
+export const dynamic = 'force-dynamic'
+
 const EBAY_IDENTITY_URL = 'https://api.sandbox.ebay.com/commerce/identity/v1/user'
 
 export async function GET() {
   try {
     const cookieStore = cookies()
-    const accessToken = cookieStore.get('ebay_access_token')?.value
-    const tokenExpires = cookieStore.get('ebay_token_expires')?.value
+    const accessToken = cookieStore.get('ebay_access')?.value
+    const tokenExpires = cookieStore.get('ebay_exp')?.value
     
     if (!accessToken) {
       return NextResponse.json({

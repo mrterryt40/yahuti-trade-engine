@@ -2,6 +2,8 @@ import { CommandDeck } from '@/components/command-deck'
 import { Suspense } from 'react'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
+export const dynamic = 'force-dynamic'
+
 export default function HomePage() {
   return (
     <div className="flex flex-col h-full">

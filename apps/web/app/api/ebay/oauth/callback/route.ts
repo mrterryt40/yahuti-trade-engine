@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server'
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
-const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
-const EBAY_TOKEN_URL = 'https://api.sandbox.ebay.com/identity/v1/oauth2/token'
+const EBAY_RUNAME = process.env.EBAY_RUNAME!
+const EBAY_TOKEN_URL = (process.env.EBAY_ENV ?? 'sandbox') === 'production'
+  ? 'https://api.ebay.com/identity/v1/oauth2/token'
+  : 'https://api.sandbox.ebay.com/identity/v1/oauth2/token'
 
 interface eBayTokenResponse {
   access_token: string
@@ -18,9 +21,9 @@ interface eBayTokenResponse {
 
 export async function GET(request: Request) {
   try {
-    if (!EBAY_CLIENT_ID || !EBAY_CLIENT_SECRET) {
+    if (!EBAY_CLIENT_ID || !EBAY_CLIENT_SECRET || !EBAY_RUNAME) {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent('eBay OAuth credentials not configured')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=error`
       )
     }
 
@@ -28,177 +31,81 @@ export async function GET(request: Request) {
     const code = searchParams.get('code')
     const error = searchParams.get('error')
     const state = searchParams.get('state')
-    const isAuthSuccessful = searchParams.get('isAuthSuccessful')
-    const url = request.url
     
     console.log('eBay OAuth callback received:', { 
-      url,
-      code: code ? `${code.substring(0, 10)}...` : null, // Log partial code for security
+      code: code ? `${code.substring(0, 10)}...` : null,
       error, 
-      state,
-      isAuthSuccessful,
-      allParams: Object.fromEntries(searchParams),
-      headers: Object.fromEntries(request.headers.entries())
+      state
     })
     
-    // Handle Auth'n'Auth callback format
-    if (isAuthSuccessful === 'true') {
-      console.log('Auth\'n\'Auth callback - simulating OAuth success')
-      
-      const tokenData = {
-        access_token: `simulated_token_${Date.now()}`,
-        refresh_token: `simulated_refresh_${Date.now()}`,
-        expires_in: 7200,
-        token_type: 'Bearer',
-        scope: 'https://api.ebay.com/oauth/api_scope'
-      }
-      
-      const response = NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=success`
-      )
-      
-      response.cookies.set('ebay_access_token', tokenData.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
-      })
-      
-      response.cookies.set('ebay_refresh_token', tokenData.refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 86400 * 365
-      })
-      
-      response.cookies.set('ebay_token_expires', (Date.now() + tokenData.expires_in * 1000).toString(), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
-      })
-      
-      return response
-    }
-    
-    if (error || isAuthSuccessful === 'false') {
+    if (error) {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(error || 'Authentication failed')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=error`
       )
     }
     
     if (!code) {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent('No authorization code received')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=failed`
       )
     }
     
-    // Exchange authorization code for access token
-    console.log('Exchanging authorization code for access token')
-    
+    const basic = Buffer.from(`${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`).toString('base64')
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: EBAY_RUNAME
+    })
+
     try {
       const tokenResponse = await fetch(EBAY_TOKEN_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${Buffer.from(`${EBAY_CLIENT_ID}:${EBAY_CLIENT_SECRET}`).toString('base64')}`
+          'Authorization': `Basic ${basic}`
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code: code,
-          redirect_uri: REDIRECT_URI
-        }).toString()
+        body
       })
       
       if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text()
-        console.error('Token exchange failed:', errorText)
-        throw new Error(`Token exchange failed: ${tokenResponse.status}`)
+        return NextResponse.redirect(`${process.env.APP_URL || 'http://localhost:3000'}/?auth=failed`)
       }
       
-      const tokenData: eBayTokenResponse = await tokenResponse.json()
-      console.log('Token exchange successful')
+      const tokens: eBayTokenResponse = await tokenResponse.json()
+      const response = NextResponse.redirect(`${process.env.APP_URL || 'http://localhost:3000'}/?auth=ok`)
       
-      // Store tokens securely
-      const response = NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=success`
-      )
-      
-      // Set secure cookies with the tokens
-      response.cookies.set('ebay_access_token', tokenData.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
+      response.cookies.set('ebay_access', tokens.access_token, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        path: '/',
+        maxAge: tokens.expires_in
       })
       
-      response.cookies.set('ebay_refresh_token', tokenData.refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 86400 * 365 // 1 year
-      })
+      if (tokens.refresh_token) {
+        response.cookies.set('ebay_refresh', tokens.refresh_token, { 
+          httpOnly: true, 
+          secure: process.env.NODE_ENV === 'production', 
+          path: '/',
+          maxAge: 86400 * 365
+        })
+      }
       
-      response.cookies.set('ebay_token_expires', (Date.now() + tokenData.expires_in * 1000).toString(), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
+      response.cookies.set('ebay_exp', String(Date.now() + tokens.expires_in * 1000), { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        path: '/',
+        maxAge: tokens.expires_in
       })
       
       return response
       
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError)
-      
-      // Fall back to simulated token for development
-      console.log('Falling back to simulated token data')
-      
-      const tokenData = {
-        access_token: `simulated_token_${Date.now()}`,
-        refresh_token: `simulated_refresh_${Date.now()}`,
-        expires_in: 7200, // 2 hours
-        token_type: 'Bearer',
-        scope: 'https://api.ebay.com/oauth/api_scope'
-      }
-      
-      // Fallback response for simulated tokens
-      const response = NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/?auth=success`
-      )
-      
-      // Set secure cookies with the simulated tokens
-      response.cookies.set('ebay_access_token', tokenData.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
-      })
-      
-      response.cookies.set('ebay_refresh_token', tokenData.refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 86400 * 365 // 1 year
-      })
-      
-      response.cookies.set('ebay_token_expires', (Date.now() + tokenData.expires_in * 1000).toString(), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: tokenData.expires_in
-      })
-      
-      return response
+      return NextResponse.redirect(`${process.env.APP_URL || 'http://localhost:3000'}/?auth=failed`)
     }
     
   } catch (error) {
     console.error('eBay OAuth callback error:', error)
-    
-    return NextResponse.redirect(
-      `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(
-        error instanceof Error ? error.message : 'OAuth callback failed'
-      )}`
-    )
+    return NextResponse.redirect(`${process.env.APP_URL || 'http://localhost:3000'}/?auth=error`)
   }
 }

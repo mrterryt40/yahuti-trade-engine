@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const EBAY_RUNAME = process.env.EBAY_RUNAME || 'Terry_Taylor-TerryTay-Yahuti-micwny'

@@ -59,20 +59,8 @@ export function useeBayAuth() {
     try {
       setError(null)
       
-      const params = new URLSearchParams()
-      if (scopes) {
-        params.append('scopes', scopes)
-      }
-      
-      const response = await fetch(`/api/ebay/oauth/auth-url?${params.toString()}`)
-      const data = await response.json()
-      
-      if (data.success) {
-        // Redirect to eBay authorization URL
-        window.location.href = data.authUrl
-      } else {
-        throw new Error(data.error || 'Failed to initiate authentication')
-      }
+      // Use direct redirect to login endpoint instead of fetching auth URL
+      window.location.href = '/api/ebay/login'
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to initiate auth'
@@ -108,9 +96,9 @@ export function useeBayAuth() {
   const logout = async () => {
     try {
       // Clear cookies by setting expired date
-      document.cookie = 'ebay_access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-      document.cookie = 'ebay_refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
-      document.cookie = 'ebay_token_expires=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      document.cookie = 'ebay_access=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      document.cookie = 'ebay_refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+      document.cookie = 'ebay_exp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
       
       setAuthStatus({ authenticated: false })
       setError(null)
@@ -144,12 +132,12 @@ export function useeBayAuth() {
     const authSuccess = urlParams.get('auth')
     const authError = urlParams.get('error')
     
-    if (authSuccess === 'success') {
+    if (authSuccess === 'ok') {
       // Clean up URL and refresh auth status
       window.history.replaceState({}, document.title, window.location.pathname)
       checkAuthStatus()
-    } else if (authError) {
-      setError(decodeURIComponent(authError))
+    } else if (authSuccess === 'error' || authSuccess === 'failed' || authError) {
+      setError(authError ? decodeURIComponent(authError) : 'Authentication failed')
       window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [])

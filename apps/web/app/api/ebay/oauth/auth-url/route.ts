@@ -7,42 +7,8 @@ const REDIRECT_URI = 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/call
 const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
 const EBAY_OAUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
 
-// Comprehensive scopes for OAuth 2.0
-const DEFAULT_SCOPES = [
-  'https://api.ebay.com/oauth/api_scope',
-  'https://api.ebay.com/oauth/api_scope/buy.order.readonly',
-  'https://api.ebay.com/oauth/api_scope/buy.guest.order',
-  'https://api.ebay.com/oauth/api_scope/sell.marketing.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.marketing',
-  'https://api.ebay.com/oauth/api_scope/sell.inventory.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.inventory',
-  'https://api.ebay.com/oauth/api_scope/sell.account.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.account',
-  'https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.fulfillment',
-  'https://api.ebay.com/oauth/api_scope/sell.analytics.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.marketplace.insights.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.catalog.readonly',
-  'https://api.ebay.com/oauth/api_scope/buy.shopping.cart',
-  'https://api.ebay.com/oauth/api_scope/buy.offer.auction',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.email.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.phone.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.address.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.name.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.identity.status.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.finances',
-  'https://api.ebay.com/oauth/api_scope/sell.payment.dispute',
-  'https://api.ebay.com/oauth/api_scope/sell.item.draft',
-  'https://api.ebay.com/oauth/api_scope/sell.item',
-  'https://api.ebay.com/oauth/api_scope/sell.reputation',
-  'https://api.ebay.com/oauth/api_scope/sell.reputation.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.notification.subscription',
-  'https://api.ebay.com/oauth/api_scope/commerce.notification.subscription.readonly',
-  'https://api.ebay.com/oauth/api_scope/sell.stores',
-  'https://api.ebay.com/oauth/api_scope/sell.stores.readonly',
-  'https://api.ebay.com/oauth/api_scope/commerce.vero'
-].join(' ')
+// Basic scope for testing OAuth 2.0
+const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'
 
 export async function GET(request: Request) {
   try {

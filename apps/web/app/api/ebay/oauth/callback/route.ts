@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const REDIRECT_URI = process.env.EBAY_REDIRECT_URI || 'http://localhost:3000/api/ebay/oauth/callback'

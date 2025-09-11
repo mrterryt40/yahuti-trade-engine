@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     if (!EBAY_CLIENT_ID || !EBAY_CLIENT_SECRET) {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent('eBay OAuth credentials not configured')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent('eBay OAuth credentials not configured')}`
       )
     }
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     
     if (error || isAuthSuccessful === 'false') {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent(error || 'Authentication failed')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(error || 'Authentication failed')}`
       )
     }
     
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       console.log('Treating callback as successful authentication')
     } else {
       return NextResponse.redirect(
-        `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent('Authentication failed')}`
+        `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent('Authentication failed')}`
       )
     }
     
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     // In a real application, you would store these tokens securely
     // For now, we'll store them in a cookie/session for demo purposes
     const response = NextResponse.redirect(
-      `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?auth=success`
+      `${process.env.APP_URL || 'http://localhost:3000'}/?auth=success`
     )
     
     // Set secure cookies with the tokens
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
     console.error('eBay OAuth callback error:', error)
     
     return NextResponse.redirect(
-      `${process.env.APP_URL || 'http://localhost:3000'}/dashboard?error=${encodeURIComponent(
+      `${process.env.APP_URL || 'http://localhost:3000'}/?error=${encodeURIComponent(
         error instanceof Error ? error.message : 'OAuth callback failed'
       )}`
     )

@@ -39,28 +39,17 @@ const SCOPES = [
 ]
 
 export async function GET() {
-  try {
-    const authBase =
-      (process.env.EBAY_ENV ?? 'sandbox') === 'production'
-        ? 'https://auth.ebay.com/oauth2/authorize'
-        : 'https://auth.sandbox.ebay.com/oauth2/authorize'
+  const authBase =
+    (process.env.EBAY_ENV ?? 'sandbox') === 'production'
+      ? 'https://auth.ebay.com/oauth2/authorize'
+      : 'https://auth.sandbox.ebay.com/oauth2/authorize'
 
-    const url = new URL(authBase)
-    url.searchParams.set('client_id', process.env.EBAY_CLIENT_ID!)
-    url.searchParams.set('redirect_uri', process.env.EBAY_RUNAME!) // exact RuName string
-    url.searchParams.set('response_type', 'code')
-    url.searchParams.set('scope', SCOPES.join(' ')) // joined, then URL API encodes it
-    url.searchParams.set('state', crypto.randomUUID())
+  const url = new URL(authBase)
+  url.searchParams.set('client_id', process.env.EBAY_CLIENT_ID!)
+  url.searchParams.set('redirect_uri', process.env.EBAY_RUNAME!) // EXACT RuName string
+  url.searchParams.set('response_type', 'code')
+  url.searchParams.set('scope', SCOPES.join(' ')) // URL API encodes it
+  url.searchParams.set('state', crypto.randomUUID())
 
-    console.log('eBay OAuth start redirect:', { 
-      clientId: process.env.EBAY_CLIENT_ID,
-      ruName: process.env.EBAY_RUNAME,
-      finalUrl: url.toString()
-    })
-    
-    return NextResponse.redirect(url.toString(), { status: 302 })
-  } catch (error) {
-    console.error('eBay OAuth start error:', error)
-    return NextResponse.redirect(`${process.env.APP_URL || 'http://localhost:3000'}/?auth=error`, { status: 302 })
-  }
+  return NextResponse.redirect(url.toString(), { status: 302 })
 }

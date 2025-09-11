@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { makeeBayApiCall } from '@/lib/ebay-api'
 
 const EBAY_BASE_URL = 'https://api.sandbox.ebay.com'
 const APP_ID = 'TerryTay-YahutiTr-SBX-5115bff8e-83abae7a'
@@ -41,19 +42,15 @@ export async function GET(request: Request) {
 
     console.log(`Fetching eBay item details for ID: ${itemId}`)
 
-    // Try Browse API first
-    const browseUrl = `${EBAY_BASE_URL}/buy/browse/v1/item/${itemId}`
-    
-    const response = await fetch(browseUrl, {
-      headers: {
-        'Authorization': `Bearer ${APP_ID}`,
-        'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
-        'Accept': 'application/json'
-      }
+    // Try Browse API first using App Token
+    const response = await makeeBayApiCall({
+      endpoint: `/buy/browse/v1/item/${itemId}`,
+      requiresAuth: false,
+      useAppToken: true
     })
 
-    if (response.ok) {
-      const data: eBayBrowseItem = await response.json()
+    if (response.success && response.data) {
+      const data: eBayBrowseItem = response.data
       
       return NextResponse.json({
         success: true,

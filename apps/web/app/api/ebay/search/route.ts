@@ -1,164 +1,132 @@
 import { NextResponse } from 'next/server'
+import { searcheBayItems } from '@/lib/ebay-api'
 
-const EBAY_BASE_URL = 'https://api.sandbox.ebay.com'
-const APP_ID = 'TerryTay-YahutiTr-SBX-5115bff8e-83abae7a'
-
-interface eBaySearchItem {
-  itemId: string[]
-  title: string[]
-  primaryCategory: {
-    categoryId: string[]
-    categoryName: string[]
-  }[]
-  currentPrice: {
-    value: string[]
-    currencyId: string[]
-  }[]
-  condition: {
-    conditionId: string[]
-    conditionDisplayName: string[]
-  }[]
-  listingInfo: {
-    listingType: string[]
-    buyItNowAvailable: string[]
-    endTime: string[]
-  }[]
-  galleryURL?: string[]
-  viewItemURL: string[]
-  location: string[]
-  country: string[]
-  shippingInfo: {
-    shippingServiceCost: {
-      value: string[]
-      currencyId: string[]
-    }[]
-    shippingType: string[]
-  }[]
-}
-
-interface eBaySearchResponse {
-  findItemsByKeywordsResponse: [{
-    ack: string[]
-    version: string[]
-    timestamp: string[]
-    searchResult: [{
-      count: string[]
-      item?: eBaySearchItem[]
-    }]
-    paginationOutput: [{
-      pageNumber: string[]
-      entriesPerPage: string[]
-      totalPages: string[]
-      totalEntries: string[]
-    }]
-  }]
-}
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const keywords = searchParams.get('keywords') || 'iPhone'
-    const categoryId = searchParams.get('categoryId') || ''
-    const minPrice = searchParams.get('minPrice') || ''
-    const maxPrice = searchParams.get('maxPrice') || ''
-    const sortOrder = searchParams.get('sortOrder') || 'BestMatch'
-    const entriesPerPage = searchParams.get('limit') || '10'
+    const keywords = searchParams.get('keywords') || searchParams.get('q') || 'iPhone'
+    const categoryId = searchParams.get('categoryId') || searchParams.get('category_id')
+    const minPrice = searchParams.get('minPrice') || searchParams.get('min_price')
+    const maxPrice = searchParams.get('maxPrice') || searchParams.get('max_price')
+    const sortOrder = searchParams.get('sortOrder') || searchParams.get('sort') || 'BestMatch'
+    const limit = searchParams.get('limit') || '10'
 
-    // Build eBay API URL
-    const params = new URLSearchParams({
-      'OPERATION-NAME': 'findItemsByKeywords',
-      'SERVICE-VERSION': '1.0.0',
-      'SECURITY-APPNAME': APP_ID,
-      'RESPONSE-DATA-FORMAT': 'JSON',
-      'REST-PAYLOAD': 'true',
-      'keywords': keywords,
-      'paginationInput.entriesPerPage': entriesPerPage,
-      'sortOrder': sortOrder,
+    console.log(`Searching eBay for: ${keywords}`)
+
+    // Try eBay Browse API Search with App Token
+    const response = await searcheBayItems(keywords, {
+      categoryId: categoryId || undefined,
+      minPrice: minPrice || undefined,
+      maxPrice: maxPrice || undefined,
+      sortOrder,
+      limit
     })
 
-    if (categoryId) {
-      params.append('categoryId', categoryId)
+    if (response.success && response.data) {
+      const searchResult = response.data
+      const items = searchResult.itemSummaries || []
+      
+      // Transform eBay Browse API response to our format
+      const transformedItems = items.map((item: any) => ({
+        id: item.itemId,
+        title: item.title,
+        price: item.price ? parseFloat(item.price.value) : 0,
+        currency: item.price?.currency || 'USD',
+        condition: item.condition || 'Unknown',
+        listingType: item.buyingOptions?.[0] || 'FixedPrice',
+        imageUrl: item.image?.imageUrl || '',
+        viewUrl: item.itemWebUrl,
+        location: item.itemLocation?.city || 'Unknown',
+        country: item.itemLocation?.country || 'US',
+        category: {
+          id: item.categories?.[0]?.categoryId || '',
+          name: item.categories?.[0]?.categoryName || 'Other'
+        },
+        shipping: {
+          cost: item.shippingOptions?.[0]?.shippingCost ? 
+                 parseFloat(item.shippingOptions[0].shippingCost.value) : 0,
+          type: item.shippingOptions?.[0]?.shippingCostType || 'Unknown'
+        },
+        seller: {
+          username: item.seller?.username || 'Unknown',
+          feedbackScore: item.seller?.feedbackScore || 0
+        }
+      }))
+
+      return NextResponse.json({
+        success: true,
+        items: transformedItems,
+        pagination: {
+          currentPage: 1,
+          itemsPerPage: transformedItems.length,
+          totalPages: Math.ceil((searchResult.total || transformedItems.length) / parseInt(limit)),
+          totalItems: searchResult.total || transformedItems.length
+        },
+        searchInfo: {
+          keywords,
+          timestamp: new Date().toISOString()
+        },
+        dataSource: 'eBay Browse API'
+      })
     }
 
-    if (minPrice && maxPrice) {
-      params.append('itemFilter(0).name', 'Price')
-      params.append('itemFilter(0).value(0)', minPrice)
-      params.append('itemFilter(0).value(1)', maxPrice)
-      params.append('itemFilter(0).paramName', 'Currency')
-      params.append('itemFilter(0).paramValue', 'USD')
-    }
-
-    // Add condition filter for new items
-    params.append('itemFilter(1).name', 'Condition')
-    params.append('itemFilter(1).value', 'New')
-
-    // Add listing type filter
-    params.append('itemFilter(2).name', 'ListingType')
-    params.append('itemFilter(2).value(0)', 'FixedPrice')
-    params.append('itemFilter(2).value(1)', 'Auction')
-
-    const url = `${EBAY_BASE_URL}/services/search/FindingService/v1?${params.toString()}`
+    // If Browse API fails, fall back to simulation
+    console.log(`eBay Browse API search failed for "${keywords}", providing simulation`)
     
-    const response = await fetch(url, {
-      headers: {
-        'X-EBAY-SOA-SECURITY-APPNAME': APP_ID,
+    // Generate realistic test data based on search keywords
+    const mockItems = [
+      {
+        id: `${Date.now()}-1`,
+        title: `${keywords} - Premium Quality`,
+        price: Math.round((Math.random() * 500 + 50) * 100) / 100,
+        currency: 'USD',
+        condition: 'New',
+        listingType: 'FixedPrice',
+        imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop',
+        viewUrl: `https://www.ebay.com/itm/${Date.now()}-1`,
+        location: 'San Francisco',
+        country: 'US',
+        category: { id: '9355', name: 'Electronics' },
+        shipping: { cost: 9.99, type: 'Standard' },
+        seller: { username: 'test_seller_1', feedbackScore: 98.5 }
       },
-    })
-
-    if (!response.ok) {
-      throw new Error(`eBay API error! status: ${response.status}`)
-    }
-
-    const data: eBaySearchResponse = await response.json()
-    
-    // Check if the response has an error
-    if (data.findItemsByKeywordsResponse[0].ack[0] !== 'Success') {
-      throw new Error('eBay API returned error')
-    }
-
-    const searchResult = data.findItemsByKeywordsResponse[0].searchResult[0]
-    const items = searchResult.item || []
-    
-    // Transform eBay data to our format
-    const transformedItems = items.map(item => ({
-      id: item.itemId[0],
-      title: item.title[0],
-      price: parseFloat(item.currentPrice[0].value[0]),
-      currency: item.currentPrice[0].currencyId[0],
-      condition: item.condition?.[0]?.conditionDisplayName?.[0] || 'Unknown',
-      listingType: item.listingInfo[0].listingType[0],
-      endTime: item.listingInfo[0].endTime[0],
-      imageUrl: item.galleryURL?.[0] || '',
-      viewUrl: item.viewItemURL[0],
-      location: item.location[0],
-      country: item.country[0],
-      category: {
-        id: item.primaryCategory[0].categoryId[0],
-        name: item.primaryCategory[0].categoryName[0]
-      },
-      shipping: {
-        cost: item.shippingInfo[0].shippingServiceCost?.[0]?.value?.[0] ? 
-               parseFloat(item.shippingInfo[0].shippingServiceCost[0].value[0]) : 0,
-        type: item.shippingInfo[0].shippingType[0]
+      {
+        id: `${Date.now()}-2`,
+        title: `${keywords} - Best Deal`,
+        price: Math.round((Math.random() * 300 + 25) * 100) / 100,
+        currency: 'USD',
+        condition: 'Used',
+        listingType: 'Auction',
+        imageUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=300&fit=crop',
+        viewUrl: `https://www.ebay.com/itm/${Date.now()}-2`,
+        location: 'New York',
+        country: 'US',
+        category: { id: '9355', name: 'Electronics' },
+        shipping: { cost: 0, type: 'Free' },
+        seller: { username: 'bargain_hunter', feedbackScore: 95.2 }
       }
-    }))
-
-    const pagination = data.findItemsByKeywordsResponse[0].paginationOutput[0]
+    ]
 
     return NextResponse.json({
       success: true,
-      items: transformedItems,
+      items: mockItems,
       pagination: {
-        currentPage: parseInt(pagination.pageNumber[0]),
-        itemsPerPage: parseInt(pagination.entriesPerPage[0]),
-        totalPages: parseInt(pagination.totalPages[0]),
-        totalItems: parseInt(pagination.totalEntries[0])
+        currentPage: 1,
+        itemsPerPage: mockItems.length,
+        totalPages: 1,
+        totalItems: mockItems.length
       },
       searchInfo: {
         keywords,
         timestamp: new Date().toISOString()
-      }
+      },
+      dataSource: 'eBay Sandbox Simulation',
+      note: 'eBay Browse API not available - showing test data. Add EBAY_APP_TOKEN to use real search.'
     })
+
   } catch (error) {
     console.error('eBay search API error:', error)
     return NextResponse.json({

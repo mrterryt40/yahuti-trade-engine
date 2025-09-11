@@ -10,6 +10,7 @@ export interface eBayApiOptions {
   headers?: Record<string, string>
   useProduction?: boolean
   requiresAuth?: boolean
+  useAppToken?: boolean
 }
 
 export interface eBayApiResponse<T = any> {
@@ -27,7 +28,8 @@ export async function makeeBayApiCall<T = any>(options: eBayApiOptions): Promise
       body,
       headers = {},
       useProduction = false,
-      requiresAuth = true
+      requiresAuth = true,
+      useAppToken = false
     } = options
 
     const baseUrl = useProduction ? EBAY_BASE_URL_PROD : EBAY_BASE_URL_SANDBOX
@@ -64,6 +66,19 @@ export async function makeeBayApiCall<T = any>(options: eBayApiOptions): Promise
       }
 
       requestHeaders['Authorization'] = `Bearer ${accessToken}`
+    } else if (useAppToken) {
+      // Use App Token for guest mode APIs
+      const appToken = process.env.EBAY_APP_TOKEN
+      
+      if (!appToken) {
+        return {
+          success: false,
+          error: 'eBay App Token not configured. Please add EBAY_APP_TOKEN to environment variables.',
+          status: 401
+        }
+      }
+      
+      requestHeaders['Authorization'] = `Bearer ${appToken}`
     }
 
     // Add content type for POST/PUT requests
@@ -166,6 +181,35 @@ export async function geteBayAnalytics(params?: {
 export async function geteBayMarketplaceInsights(keywords: string) {
   return makeeBayApiCall({
     endpoint: `/buy/marketplace_insights/v1_beta/item_sales/search?q=${encodeURIComponent(keywords)}&category_ids=9355`,
-    requiresAuth: false // This endpoint doesn't require user auth, just app auth
+    requiresAuth: false,
+    useAppToken: true
+  })
+}
+
+export async function searcheBayItems(keywords: string, options?: {
+  categoryId?: string
+  minPrice?: string
+  maxPrice?: string
+  sortOrder?: string
+  limit?: string
+}) {
+  const params = new URLSearchParams({
+    'q': keywords,
+    'limit': options?.limit || '10',
+    'sort': options?.sortOrder || 'BestMatch'
+  })
+  
+  if (options?.categoryId) {
+    params.append('category_ids', options.categoryId)
+  }
+  
+  if (options?.minPrice && options?.maxPrice) {
+    params.append('filter', `price:[${options.minPrice}..${options.maxPrice}]`)
+  }
+  
+  return makeeBayApiCall({
+    endpoint: `/buy/browse/v1/item_summary/search?${params.toString()}`,
+    requiresAuth: false,
+    useAppToken: true
   })
 }

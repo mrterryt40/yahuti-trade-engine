@@ -11,7 +11,8 @@ const nextConfig = {
       'ir.ebaystatic.com',
       'p.ebayimg.com',
       's3.amazonaws.com',
-      'images.unsplash.com'
+      'images.unsplash.com',
+      'picsum.photos'
     ],
   },
   env: {

@@ -126,7 +126,7 @@ export async function GET() {
           title: 'Apple iPhone 15 Pro Max 256GB - Natural Titanium',
           price: Math.round((Math.random() * 200 + 1100) * 100) / 100,
           currency: 'USD',
-          imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=100&h=100&fit=crop',
+          imageUrl: 'https://picsum.photos/100/100?random=1',
           listingType: 'FixedPrice',
           location: 'New York, NY'
         },
@@ -135,7 +135,7 @@ export async function GET() {
           title: 'MacBook Pro 16" M3 Max 64GB RAM 2TB SSD',
           price: Math.round((Math.random() * 800 + 3600) * 100) / 100,
           currency: 'USD',
-          imageUrl: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=100&h=100&fit=crop',
+          imageUrl: 'https://picsum.photos/100/100?random=2',
           listingType: 'Auction',
           location: 'California, CA'
         },
@@ -144,7 +144,7 @@ export async function GET() {
           title: 'Sony PlayStation 5 Console + Extra Controller',
           price: Math.round((Math.random() * 100 + 500) * 100) / 100,
           currency: 'USD',
-          imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=100&h=100&fit=crop',
+          imageUrl: 'https://picsum.photos/100/100?random=3',
           listingType: 'FixedPrice',
           location: 'Texas, TX'
         },
@@ -153,7 +153,7 @@ export async function GET() {
           title: 'Samsung Galaxy S24 Ultra 512GB Titanium Gray',
           price: Math.round((Math.random() * 300 + 950) * 100) / 100,
           currency: 'USD',
-          imageUrl: 'https://images.unsplash.com/photo-1610792516307-fb72d2e80e2d?w=100&h=100&fit=crop',
+          imageUrl: 'https://picsum.photos/100/100?random=4',
           listingType: 'FixedPrice',
           location: 'Florida, FL'
         },
@@ -162,7 +162,7 @@ export async function GET() {
           title: 'Nintendo Switch OLED Pokemon Scarlet Bundle',
           price: Math.round((Math.random() * 80 + 340) * 100) / 100,
           currency: 'USD',
-          imageUrl: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=100&h=100&fit=crop',
+          imageUrl: 'https://picsum.photos/100/100?random=5',
           listingType: 'Auction',
           location: 'Washington, WA'
         }

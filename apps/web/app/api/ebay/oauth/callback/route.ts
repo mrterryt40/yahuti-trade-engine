@@ -45,8 +45,32 @@ export async function GET(req: NextRequest) {
 
   const t = await res.json()
   const r = NextResponse.redirect(`${process.env.APP_URL}/?auth=ok`)
-  r.cookies.set('ebay_access', t.access_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: t.expires_in })
-  if (t.refresh_token) r.cookies.set('ebay_refresh', t.refresh_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
-  r.cookies.set('ebay_exp', String(Date.now() + t.expires_in * 1000), { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
+  
+  // Set cookies with proper security settings for both dev and prod
+  const isSecure = process.env.NODE_ENV === 'production'
+  r.cookies.set('ebay_access', t.access_token, { 
+    httpOnly: true, 
+    secure: isSecure, 
+    sameSite: 'lax', 
+    path: '/', 
+    maxAge: t.expires_in 
+  })
+  
+  if (t.refresh_token) {
+    r.cookies.set('ebay_refresh', t.refresh_token, { 
+      httpOnly: true, 
+      secure: isSecure, 
+      sameSite: 'lax', 
+      path: '/' 
+    })
+  }
+  
+  r.cookies.set('ebay_exp', String(Date.now() + t.expires_in * 1000), { 
+    httpOnly: true, 
+    secure: isSecure, 
+    sameSite: 'lax', 
+    path: '/' 
+  })
+  
   return r
 }

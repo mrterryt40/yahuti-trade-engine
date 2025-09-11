@@ -5,9 +5,9 @@ const EBAY_CLIENT_ID = process.env.EBAY_CLIENT_ID
 const EBAY_CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET
 const REDIRECT_URI = 'https://yahuti-trade-engine.vercel.app/api/ebay/oauth/callback'
 const EBAY_RUNAME = 'Terry_Taylor-TerryTay-Yahuti-micwny'
-const EBAY_OAUTH_BASE_URL = 'https://auth.sandbox.ebay.com/oauth2/authorize'
+const EBAY_AUTH_BASE_URL = 'https://signin.sandbox.ebay.com/ws/eBayISAPI.dll'
 
-// Basic scope for testing OAuth 2.0
+// Basic scope for Auth'n'Auth
 const DEFAULT_SCOPES = 'https://api.ebay.com/oauth/api_scope'
 
 export async function GET(request: Request) {
@@ -22,39 +22,28 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const requestedScopes = searchParams.get('scopes') || DEFAULT_SCOPES
     
-    // Generate state parameter for CSRF protection
-    const state = crypto.randomBytes(32).toString('hex')
+    // Generate session ID for Auth'n'Auth flow
+    const sessionId = crypto.randomBytes(16).toString('hex')
     
-    // Build OAuth 2.0 authorization URL
-    const params = new URLSearchParams({
-      client_id: EBAY_CLIENT_ID!,
-      response_type: 'code',
-      redirect_uri: REDIRECT_URI,
-      scope: requestedScopes,
-      state: state
-    })
-    
-    const authUrl = `${EBAY_OAUTH_BASE_URL}?${params.toString()}`
+    // Build Auth'n'Auth authorization URL
+    const authUrl = `${EBAY_AUTH_BASE_URL}?SignIn&runame=${EBAY_RUNAME}&SessID=${sessionId}`
     
     // Debug logging
-    console.log('eBay OAuth 2.0 Debug:', {
-      clientId: EBAY_CLIENT_ID,
-      redirectUri: REDIRECT_URI,
-      state: state,
+    console.log('eBay Auth\'n\'Auth Debug:', {
+      runame: EBAY_RUNAME,
+      sessionId: sessionId,
       authUrl
     })
     
     return NextResponse.json({
       success: true,
       authUrl,
-      state,
-      clientId: EBAY_CLIENT_ID,
-      redirectUri: REDIRECT_URI,
-      message: 'eBay OAuth 2.0 URL generated successfully',
+      sessionId,
+      runame: EBAY_RUNAME,
+      message: 'eBay Auth\'n\'Auth URL generated successfully',
       debug: {
-        clientId: EBAY_CLIENT_ID,
-        redirectUri: REDIRECT_URI,
-        state: state,
+        runame: EBAY_RUNAME,
+        sessionId: sessionId,
         authUrl
       }
     })

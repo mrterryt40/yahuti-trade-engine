@@ -59,8 +59,8 @@ export function useeBayAuth() {
     try {
       setError(null)
       
-      // Use direct redirect to login endpoint instead of fetching auth URL
-      window.location.href = '/api/ebay/login'
+      // Use direct redirect to OAuth start endpoint for true browser navigation
+      window.location.href = '/api/ebay/oauth/start'
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to initiate auth'
